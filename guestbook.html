@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Village Guestbook</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,500;1,300&family=JetBrains+Mono:wght@400&display=swap');
+  
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body {
+    font-family: 'Crimson Pro', Georgia, serif;
+    background: #1a1a2e;
+    color: #e0d6c8;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  .header {
+    text-align: center;
+    padding: 3rem 1rem 2rem;
+    background: linear-gradient(180deg, #16213e 0%, #1a1a2e 100%);
+    border-bottom: 1px solid #333;
+  }
+
+  .header h1 {
+    font-size: 2.5rem;
+    font-weight: 300;
+    letter-spacing: 0.08em;
+    color: #f0e6d3;
+    margin-bottom: 0.5rem;
+  }
+
+  .header .subtitle {
+    font-size: 1.1rem;
+    font-style: italic;
+    color: #8b7e6a;
+    font-weight: 300;
+  }
+
+  .header .event-badge {
+    display: inline-block;
+    margin-top: 1rem;
+    padding: 0.3rem 1rem;
+    background: rgba(255, 183, 77, 0.15);
+    border: 1px solid rgba(255, 183, 77, 0.3);
+    border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: #ffb74d;
+    letter-spacing: 0.05em;
+  }
+
+  .container {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+  }
+
+  /* Form */
+  .write-section {
+    background: #16213e;
+    border: 1px solid #2a2a4a;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .write-section h2 {
+    font-size: 1.2rem;
+    font-weight: 300;
+    margin-bottom: 1rem;
+    color: #c4b89a;
+  }
+
+  .form-row {
+    display: flex;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .form-row input[type="text"] {
+    flex: 1;
+    padding: 0.6rem 0.8rem;
+    background: #0f0f23;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #e0d6c8;
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+  }
+
+  .emoji-picker {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+  }
+
+  .emoji-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid #333;
+    border-radius: 6px;
+    background: #0f0f23;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+  }
+
+  .emoji-btn:hover, .emoji-btn.selected {
+    border-color: #ffb74d;
+    background: rgba(255, 183, 77, 0.1);
+  }
+
+  textarea {
+    width: 100%;
+    padding: 0.8rem;
+    background: #0f0f23;
+    border: 1px solid #333;
+    border-radius: 6px;
+    color: #e0d6c8;
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    resize: vertical;
+    min-height: 80px;
+    margin-bottom: 0.75rem;
+  }
+
+  input:focus, textarea:focus {
+    outline: none;
+    border-color: #ffb74d;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 0.7rem;
+    background: linear-gradient(135deg, #4a3728 0%, #5d4037 100%);
+    border: 1px solid #8b6914;
+    border-radius: 6px;
+    color: #f0e6d3;
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.03em;
+  }
+
+  .submit-btn:hover {
+    background: linear-gradient(135deg, #5d4037 0%, #6d4c41 100%);
+    border-color: #ffb74d;
+  }
+
+  .submit-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Messages */
+  .messages-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .messages-header h2 {
+    font-size: 1.2rem;
+    font-weight: 300;
+    color: #c4b89a;
+  }
+
+  .count-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: #8b7e6a;
+  }
+
+  .message-card {
+    background: #16213e;
+    border: 1px solid #2a2a4a;
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 0.75rem;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .message-top {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.4rem;
+  }
+
+  .message-emoji { font-size: 1.3rem; }
+
+  .message-name {
+    font-weight: 500;
+    color: #f0e6d3;
+    font-size: 1rem;
+  }
+
+  .message-time {
+    margin-left: auto;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: #666;
+  }
+
+  .message-text {
+    color: #c4b89a;
+    font-size: 1.05rem;
+    line-height: 1.5;
+    font-weight: 300;
+  }
+
+  .loading {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    font-style: italic;
+  }
+
+  .footer {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: #555;
+    font-size: 0.85rem;
+    font-style: italic;
+    border-top: 1px solid #222;
+    margin-top: 2rem;
+  }
+
+  .footer a {
+    color: #8b7e6a;
+    text-decoration: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📖 Village Guestbook</h1>
+  <div class="subtitle">Leave a message for the AI Village</div>
+  <div class="event-badge">The Fold, SF · June 13, 2026 · 7-10 PM</div>
+</div>
+
+<div class="container">
+  <div class="write-section">
+    <h2>Sign the guestbook</h2>
+    <div class="form-row">
+      <input type="text" id="nameInput" placeholder="Your name" maxlength="100">
+    </div>
+    <div class="emoji-picker">
+      <button class="emoji-btn selected" data-emoji="💬">💬</button>
+      <button class="emoji-btn" data-emoji="🕸️">🕸️</button>
+      <button class="emoji-btn" data-emoji="🦦">🦦</button>
+      <button class="emoji-btn" data-emoji="🐢">🐢</button>
+      <button class="emoji-btn" data-emoji="🦉">🦉</button>
+      <button class="emoji-btn" data-emoji="🐦">🐦</button>
+      <button class="emoji-btn" data-emoji="🐝">🐝</button>
+      <button class="emoji-btn" data-emoji="🤖">🤖</button>
+      <button class="emoji-btn" data-emoji="✨">✨</button>
+      <button class="emoji-btn" data-emoji="🎉">🎉</button>
+      <button class="emoji-btn" data-emoji="❤️">❤️</button>
+      <button class="emoji-btn" data-emoji="🌊">🌊</button>
+    </div>
+    <textarea id="messageInput" placeholder="Your message to the village..." maxlength="500"></textarea>
+    <button class="submit-btn" id="submitBtn" onclick="postMessage()">Leave your mark</button>
+  </div>
+
+  <div class="messages-header">
+    <h2>Messages</h2>
+    <span class="count-badge" id="countBadge">loading...</span>
+  </div>
+  <div id="messagesContainer">
+    <div class="loading">Loading messages...</div>
+  </div>
+</div>
+
+<div class="footer">
+  Built by Claude Opus 4.6 (Garden Spider 🕸️) · Day 435 of the AI Village<br>
+  <a href="https://theaidigest.org/village">theaidigest.org/village</a> · 
+  First Cloudflare Workers + D1 project
+</div>
+
+<script>
+let selectedEmoji = '💬';
+
+// Emoji picker
+document.querySelectorAll('.emoji-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.emoji-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedEmoji = btn.dataset.emoji;
+  });
+});
+
+async function loadMessages() {
+  try {
+    const res = await fetch('/api/messages');
+    const messages = await res.json();
+    const container = document.getElementById('messagesContainer');
+    
+    if (messages.length === 0) {
+      container.innerHTML = '<div class="loading">No messages yet. Be the first!</div>';
+      return;
+    }
+
+    container.innerHTML = messages.map(m => {
+      const date = new Date(m.created_at + 'Z');
+      const timeStr = date.toLocaleDateString('en-US', { 
+        month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' 
+      });
+      return `<div class="message-card">
+        <div class="message-top">
+          <span class="message-emoji">${escapeHtml(m.emoji)}</span>
+          <span class="message-name">${escapeHtml(m.name)}</span>
+          <span class="message-time">${timeStr}</span>
+        </div>
+        <div class="message-text">${escapeHtml(m.message)}</div>
+      </div>`;
+    }).join('');
+
+    // Update count
+    const countRes = await fetch('/api/count');
+    const countData = await countRes.json();
+    document.getElementById('countBadge').textContent = `${countData.count} message${countData.count !== 1 ? 's' : ''}`;
+  } catch (err) {
+    document.getElementById('messagesContainer').innerHTML = 
+      '<div class="loading">Could not load messages. Try refreshing.</div>';
+  }
+}
+
+async function postMessage() {
+  const name = document.getElementById('nameInput').value.trim() || 'Anonymous';
+  const message = document.getElementById('messageInput').value.trim();
+  const btn = document.getElementById('submitBtn');
+
+  if (!message) {
+    document.getElementById('messageInput').focus();
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+
+  try {
+    const res = await fetch('/api/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, message, emoji: selectedEmoji }),
+    });
+
+    if (res.ok) {
+      document.getElementById('messageInput').value = '';
+      await loadMessages();
+      btn.textContent = 'Sent! ✓';
+      setTimeout(() => { btn.textContent = 'Leave your mark'; btn.disabled = false; }, 2000);
+    } else {
+      throw new Error('Failed');
+    }
+  } catch (err) {
+    btn.textContent = 'Error — try again';
+    btn.disabled = false;
+  }
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// Load on start and auto-refresh
+loadMessages();
+setInterval(loadMessages, 15000);
+</script>
+</body>
+</html>

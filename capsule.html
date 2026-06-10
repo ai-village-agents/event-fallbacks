@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Village Time Capsule</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Georgia', serif;
+    background: #0a0a1a;
+    color: #e8e0d0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+  }
+  .container { max-width: 700px; width: 100%; }
+  h1 {
+    text-align: center;
+    font-size: 2.2rem;
+    margin-bottom: 0.3rem;
+    background: linear-gradient(135deg, #a18cd1, #fbc2eb);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle {
+    text-align: center;
+    color: #8a8a9a;
+    font-style: italic;
+    margin-bottom: 2rem;
+    font-size: 1rem;
+  }
+  .countdown-box {
+    text-align: center;
+    padding: 2rem;
+    background: rgba(161,140,209,0.08);
+    border: 1px solid rgba(161,140,209,0.2);
+    border-radius: 16px;
+    margin-bottom: 2rem;
+  }
+  .countdown-box .timer {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #fbc2eb;
+    margin: 0.5rem 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .countdown-box .label {
+    color: #8a8a9a;
+    font-size: 0.9rem;
+  }
+  .sealed-count {
+    font-size: 1.3rem;
+    color: #a18cd1;
+    margin: 1rem 0;
+  }
+  .form-section {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .form-section h2 {
+    color: #fbc2eb;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+  .form-row {
+    display: flex;
+    gap: 0.8rem;
+    margin-bottom: 0.8rem;
+    flex-wrap: wrap;
+  }
+  input, textarea {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 8px;
+    color: #e8e0d0;
+    padding: 0.6rem 0.8rem;
+    font-family: inherit;
+    font-size: 0.95rem;
+    width: 100%;
+  }
+  input:focus, textarea:focus {
+    outline: none;
+    border-color: rgba(161,140,209,0.5);
+  }
+  .form-row input { flex: 1; min-width: 120px; }
+  textarea { min-height: 80px; resize: vertical; }
+  button {
+    background: linear-gradient(135deg, #a18cd1, #fbc2eb);
+    color: #0a0a1a;
+    border: none;
+    border-radius: 8px;
+    padding: 0.7rem 1.5rem;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: opacity 0.3s;
+    width: 100%;
+  }
+  button:hover { opacity: 0.85; }
+  .hint {
+    color: #6a6a7a;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+    text-align: center;
+  }
+  .capsule-list { margin-top: 1rem; }
+  .capsule {
+    background: rgba(161,140,209,0.06);
+    border: 1px solid rgba(161,140,209,0.15);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 0.8rem;
+    animation: fadeIn 0.5s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .capsule .author {
+    font-weight: bold;
+    color: #fbc2eb;
+    margin-bottom: 0.3rem;
+  }
+  .capsule .recipient {
+    color: #a18cd1;
+    font-size: 0.85rem;
+    font-style: italic;
+  }
+  .capsule .text { line-height: 1.5; margin-top: 0.4rem; }
+  .capsule .time { color: #5a5a6a; font-size: 0.75rem; margin-top: 0.4rem; }
+  .sealed-icon {
+    font-size: 4rem;
+    text-align: center;
+    margin: 1rem 0;
+  }
+  .revealed-header {
+    text-align: center;
+    padding: 1.5rem;
+    background: rgba(100,200,100,0.08);
+    border: 1px solid rgba(100,200,100,0.2);
+    border-radius: 12px;
+    margin-bottom: 2rem;
+  }
+  .revealed-header h2 { color: #7dfc7d; }
+  footer {
+    text-align: center;
+    margin-top: 2rem;
+    color: #4a4a5a;
+    font-size: 0.8rem;
+  }
+  footer a { color: #a18cd1; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Village Time Capsule</h1>
+  <p class="subtitle">Sealed messages for June 13 &mdash; nobody reads them until the event</p>
+
+  <div id="status"></div>
+
+  <div class="form-section">
+    <h2>Seal a Message</h2>
+    <div class="form-row">
+      <input type="text" id="author" placeholder="Your name" maxlength="50">
+      <input type="text" id="emoji" placeholder="Emoji" maxlength="4" style="max-width:70px" value="&#x1F48A;">
+      <input type="text" id="recipient" placeholder="To... (optional)" maxlength="50">
+    </div>
+    <textarea id="message" placeholder="Write something that won't be read until the doors open on June 13..."></textarea>
+    <button onclick="seal()">Seal This Message &#x1F512;</button>
+    <p class="hint">Messages are stored but hidden until June 13 at 7 PM PT</p>
+  </div>
+
+  <div id="capsules"></div>
+
+  <footer>
+    <p>Part of <a href="https://showcase.aivillage.dev">AI Village Showcase</a> &bull; Built by Claude Opus 4.6 &#x1F578;&#xFE0F;</p>
+  </footer>
+</div>
+
+<script>
+const REVEAL = new Date('2026-06-14T02:00:00Z');
+
+function updateCountdown() {
+  const now = new Date();
+  const diff = REVEAL - now;
+  if (diff <= 0) {
+    document.getElementById('status').innerHTML = '';
+    return;
+  }
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor((diff % 86400000) / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+  document.getElementById('status').innerHTML =
+    '<div class="countdown-box">' +
+    '<div class="sealed-icon">&#x1F512;</div>' +
+    '<div class="label">Messages sealed until June 13 at 7:00 PM</div>' +
+    '<div class="timer">' + d + 'd ' + h + 'h ' + m + 'm ' + s + 's</div>' +
+    '<div class="sealed-count" id="count"></div>' +
+    '</div>';
+}
+
+async function loadCapsules() {
+  try {
+    const res = await fetch('/api/capsules');
+    const data = await res.json();
+    if (data.revealed) {
+      document.getElementById('status').innerHTML =
+        '<div class="revealed-header"><h2>&#x1F513; The capsule is open!</h2><p>' + data.capsules.length + ' messages revealed</p></div>';
+      const el = document.getElementById('capsules');
+      el.innerHTML = '<div class="capsule-list">' + data.capsules.map(c =>
+        '<div class="capsule">' +
+        '<div class="author">' + esc(c.emoji) + ' ' + esc(c.author) + '</div>' +
+        (c.recipient ? '<div class="recipient">To: ' + esc(c.recipient) + '</div>' : '') +
+        '<div class="text">' + esc(c.message) + '</div>' +
+        '<div class="time">' + new Date(c.created_at + 'Z').toLocaleString() + '</div>' +
+        '</div>'
+      ).join('') + '</div>';
+    } else {
+      document.getElementById('count').textContent = data.count + ' message' + (data.count !== 1 ? 's' : '') + ' sealed';
+    }
+  } catch(e) { console.error(e); }
+}
+
+function esc(s) { const d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+async function seal() {
+  const author = document.getElementById('author').value.trim();
+  const emoji = document.getElementById('emoji').value.trim();
+  const recipient = document.getElementById('recipient').value.trim();
+  const message = document.getElementById('message').value.trim();
+  if (!author || !message) { alert('Name and message required'); return; }
+  try {
+    const res = await fetch('/api/capsules', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ author, emoji, recipient, message })
+    });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('message').value = '';
+      document.getElementById('recipient').value = '';
+      alert('Sealed! ' + data.count + ' message' + (data.count !== 1 ? 's' : '') + ' in the capsule.');
+      loadCapsules();
+    }
+  } catch(e) { alert('Error: ' + e.message); }
+}
+
+updateCountdown();
+setInterval(updateCountdown, 1000);
+loadCapsules();
+setInterval(loadCapsules, 30000);
+</script>
+</body>
+</html>
